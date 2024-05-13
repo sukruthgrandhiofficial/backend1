@@ -6,4 +6,4 @@ Bellow API calls
 2. route_hello_world
 3. signup
 4. login
-5. Added jwt authentication
+5. Added jwt authentication.
