@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend1-api
+  labels:
+    app: backend1-api
+  namespace: "{{ .Values.namespace }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: backend1-api
+  template:
+    metadata:
+      labels:
+        app: backend1-api
+    spec:
+      containers:
+      - command:
+        - uvicorn
+        - main:app
+        - --root-path
+        - backend
+        - --host
+        - "0.0.0.0"
+        - --port
+        - "8000"
+        name: backend1-api
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8000  # Port on which your FastAPI application is running
+        env:
+          {{- range .Values.envVariables }}
+          - name: {{ .name }}
+            value: {{ .value | quote }}
+          {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /backend1/hello_world
+            port: 8000
+          initialDelaySeconds: 30
+          timeoutSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /backend1/hello_world
+            port: 8000
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
