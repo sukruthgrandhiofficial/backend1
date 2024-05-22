@@ -20,7 +20,7 @@ envVariables:
   - name: DB_PASSWORD
     value: nitest
   - name: DB_HOST
-    value: dashboard-nib6-uat.ni.systems
+    value: 4.227.160.185
   - name: DB_PORT
     value: "3306"
   - name: DB_NAME
@@ -30,4 +30,4 @@ envVariables:
   - name: algorithm
     value: HS256
   - name: BACKEND2_URL
-    value: http://localhost:8000
+    value: http://backend2-api-service.backend2
