@@ -9,7 +9,7 @@ hosts:
   - sukruthgrandhi.com
 
 image:
-  repository: localhost:32000/backend1
+  repository: sukruthgrandhiofficial/backend1
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"

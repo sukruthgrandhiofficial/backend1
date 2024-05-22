@@ -1,0 +1,86 @@
+name: Backend docker publish
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+    paths-ignore:
+      - 'version.txt'
+      - 'microservice/regular/helm/values.yaml'
+  workflow_dispatch:
+  
+
+jobs:
+  test:
+    name: Poetry Python
+    runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+
+      - name: Run pytest
+        run: poetry run pytest
+
+      - name: Read Version Number
+        id: read-version
+        run: |
+          VERSION=$(cat version.txt)  # Read version from file
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT  # Add to environment variables
+            
+      - name: Bump release version
+        id: bump_version
+        uses: christian-draeger/increment-semantic-version@1.0.3
+        with:
+          current-version: "${{ steps.read-version.outputs.VERSION }}"
+          version-fragment: 'bug'
+
+      - name: Commit Updated Version
+        run: |
+          echo "${{ steps.bump_version.outputs.next-version }}"
+          echo ${{ steps.bump_version.outputs.next-version }}
+          echo "${{ steps.bump_version.outputs.next-version }}" > version.txt
+          sed -i "s/tag: \".*\"/tag: \"${{ steps.bump_version.outputs.next-version }}\"/" microservice/regular/helm/values.yaml
+          sed -i '0,/^version =/s/^version =.*/version = "${{ steps.bump_version.outputs.next-version }}"/' pyproject.toml
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish package
+        run: poetry publish --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Sleep for 60 seconds so that python package is available
+        uses: kibertoad/wait-action@1.0.1
+        with:
+          time: '60s'
+
+      - uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 180
+          max_attempts: 3
+          command: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.bump_version.outputs.next-version }} .
+          
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.bump_version.outputs.next-version }}
+
+      - uses: stefanzweifel/git-auto-commit-action@v5

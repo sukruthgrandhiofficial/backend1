@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "backend1"
-version = "1.1.23"
+version = "1.0.1"
 description = "This a demo project"
-authors = ["sukruth grandhi <sukruthgrandhi@gmail.com>"]
+authors = ["sukruth grandhi <sukruthgrandhiofficial@gmail.com>"]
 readme = "README.md"
 packages = [{include = "backend1"}]
 
