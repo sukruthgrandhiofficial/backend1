@@ -57,10 +57,6 @@ jobs:
           sed -i "s/tag: \".*\"/tag: \"${{ steps.bump_version.outputs.next-version }}\"/" microservice/regular/helm/values.yaml
           sed -i '0,/^version =/s/^version =.*/version = "${{ steps.bump_version.outputs.next-version }}"/' pyproject.toml
 
-      - name: Commit Updated Version
-        run: |
-          rm -rf dist/
-
       - name: Build package
         run: poetry build
 
