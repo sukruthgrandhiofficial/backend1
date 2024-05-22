@@ -69,10 +69,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Sleep for 60 seconds so that python package is available
-        uses: kibertoad/wait-action@1.0.1
-        with:
-          time: '60s'
+      # - name: Sleep for 60 seconds so that python package is available
+      #   uses: kibertoad/wait-action@1.0.1
+      #   with:
+      #     time: '60s'
 
       - uses: nick-fields/retry@v3
         with:
