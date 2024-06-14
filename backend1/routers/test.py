@@ -12,7 +12,7 @@ router = APIRouter(
 
 @router.get("/hello_world")
 async def hello_world():
-    return {"message": "Hello RDSS"}
+    return {"message": "Hello RDSS KS"}
 
 
 @router.get("/test_authentication", dependencies=[Depends(JWTBearer())])
